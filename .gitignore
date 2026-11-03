@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+dist/
+build/
+
+.venv*/
+node_modules/
+*.pth
+*.onnx
+data/minds/spool.jsonl
+release-artifacts/
+build/*.iso*
+build/live_workspace/
+build/release-*/
