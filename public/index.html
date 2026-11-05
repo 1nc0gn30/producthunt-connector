@@ -219,6 +219,22 @@
     };
     loadStatus().catch(err => { rows.innerHTML = row("error", String(err), "bad"); });
   </script>
-  <script src="/assets/sovereign-upgrade.js" defer></script>
+  
+
+  <script src="/sovereign_tutorial.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", function() {
+      if (window.createSovereignTutorial) {
+        window.createSovereignTutorial({
+          toolId: "producthunt-connector",
+          toolName: "Product Hunt Connector (zoth-ph)",
+          tagline: "Autonomous launch intelligence and upvote velocity tracker for Product Hunt!",
+          accentColor: "#F97316",
+          steps: [{"icon": "\ud83d\ude80", "title": "Plan Your Launch Day", "desc": "Track top-ranking products, maker comments, and upvote velocity throughout your launch window."}, {"icon": "\ud83d\udcca", "title": "Hourly Momentum Radar", "desc": "See how fast your project is gaining upvotes compared to competitors on the daily leaderboard."}, {"icon": "\ud83d\udcdd", "title": "Maker Bio & Checklist", "desc": "Gives you a ready-to-use launch checklist so you don't miss first-comment rules or gallery media guidelines."}]
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
