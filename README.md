@@ -1,131 +1,128 @@
-# 🚀 Product Hunt Connector (zoth-ph)
+<p align="center">
+  <img src="assets/hero-banner.svg" alt="Product Hunt Connector — Read-Only Product Hunt GraphQL v2 Listing Auditor & URL Drift Cockpit" width="100%" />
+</p>
 
-> **Local ZothOS Cockpit & URL Drift Sentinel for Product Hunt.**
-> Diffs the ZOTHOS Product Hunt listing against live website/GitHub URLs, surfaces votes/ranks/comments, generates official SVG badges, and serves a loopback cockpit dashboard on `127.0.0.1:8139`. Developer tokens stay strictly in `~/.config/zothos/producthunt.secret.json` with 0600 permissions.
+# Product Hunt Connector (`zoth-ph`)
 
----
+**Zero-dependency Python 3.10+ read-only Product Hunt GraphQL v2 client, website/GitHub URL drift auditor, badge snippet generator, and loopback cockpit.**
 
-## 🏛️ Architectural Overview
-
-**Product Hunt Connector (zoth-ph)** is an official sovereign tool in the **[Zoth Studio v2](https://zoth.nullai.tech)** (77-Tool Matrix) and **[ZothOS Linux 3.3](https://zothos.nullai.tech)** ecosystem, engineered by **1nc0gn30 • NullAI ([@1nc0gn30](https://github.com/1nc0gn30))**.
-
-| Property | Specification |
-| :--- | :--- |
-| **Tool ID** | `producthunt-connector` |
-| **Category** | `Commerce & POD` |
-| **Loopback Port** | `http://127.0.0.1:8139` |
-| **Execution Mode** | `local_cli` / `python` |
-| **Zoth Studio Route** | [`http://127.0.0.1:3000/tools/producthunt-connector`](http://127.0.0.1:3000/tools/producthunt-connector) |
-| **ZothOS CLI** | `producthunt-connector`, `zoth-ph` |
-| **Access Model** | **100% Free & Open Access (Zero Paywalls)** |
+- **Zoth Studio v2 Dossier**: [https://zoth.nullai.tech/tools/producthunt-connector](https://zoth.nullai.tech/tools/producthunt-connector)
+- **Default Loopback Endpoint**: `http://127.0.0.1:8139`
+- **Runtime Dependencies**: Zero external Python runtime packages (100% Python `stdlib`)
+- **License**: MIT (100% free and open-source)
 
 ---
 
-## 💎 Key Capabilities
+## Overview
 
-- **Zero-Egress Security Model**: Read-only listing verification. It never auto-posts comments, upvotes, or modifies live accounts.
-- **URL Drift Sentinel**: Detects discrepancies between desired canonical domains (`zothos.nullai.tech`, GitHub release tags) and the Product Hunt public listing.
-- **Real-Time Telemetry**: Surfaces live upvote counts, comments, review sentiment, and weekly/monthly ranks.
-- **Official Badge Generation**: Generates embeddable light/dark featured and review badge markup.
-- **Local Web Cockpit**: In-browser control panel on port `:8139` for reviewing telemetry and comments.
+`producthunt-connector` (`zoth-ph`) reads live Product Hunt post metadata via GraphQL v2 (votes, weekly/monthly rank, comments, reviews, and `productLinks`), normalizes URLs (stripping `?ref=producthunt` and trailing slashes), and diffs the live listing against desired website and GitHub release URLs. Because Product Hunt developer tokens are read-only for listing links, the tool never auto-posts or mutates listings—when drift is detected, it outputs exact maker-dashboard remediation steps. Developer tokens are stored locally in `~/.config/zothos/producthunt.secret.json` with `0600` file permissions.
 
 ---
 
-## 🚀 ZothOS CLI Usage
+## Architecture
+
+```text
+src/producthunt_connector/
+├── client.py       # Stdlib Product Hunt GraphQL v2 client, URL drift analyzer & HTML badge builder
+├── config.py       # Desired-state config loader, URL normalizer & 0600 token storage (~/.config/zothos/)
+├── cockpit.py      # Loopback ThreadingHTTPServer REST API + HTML cockpit (127.0.0.1:8139)
+└── cli.py          # CLI entrypoint (`zoth-ph` / `producthunt-connector`)
+```
+
+---
+
+## Quickstart
 
 ```bash
-# Check daemon and system status
-producthunt-connector --status
-producthunt-connector --json
+git clone https://github.com/1nc0gn30/producthunt-connector.git
+cd producthunt-connector
+python3 -m pip install -e .
 
-# Save developer token securely (mode 0600)
+# Start the loopback cockpit on http://127.0.0.1:8139
+python3 server.py --host 127.0.0.1 --port 8139
+```
+
+Or run via the installed CLI entrypoint:
+
+```bash
+zoth-ph serve --host 127.0.0.1 --port 8139
+```
+
+---
+
+## CLI Usage
+
+Installed entrypoints: `zoth-ph` and `producthunt-connector`.
+
+```bash
+# View CLI help
+zoth-ph --help
+
+# Prompt securely for a Product Hunt Developer Token (saved mode 0600)
 zoth-ph login
 
-# Check authenticated user
+# Verify the authenticated Product Hunt account
 zoth-ph whoami
 
-# Check listing status and drift report
+# Fetch live listing metrics and diff website / GitHub release URLs
 zoth-ph status
 zoth-ph status --json
 
-# Read latest community comments
-zoth-ph comments
+# Read recent Product Hunt post comments (read-only; never posts replies)
+zoth-ph comments --json
 
-# Generate embeddable badge HTML
+# Print official Featured and Review HTML embed snippets
 zoth-ph badges --json
 
-# Launch local cockpit daemon
-python3 ~/NullAITech/producthunt-connector/server.py --port 8139
+# Start the loopback web cockpit on port 8139
+zoth-ph serve --host 127.0.0.1 --port 8139
 ```
 
----
+### ZothOS v3.4.0 CLI Integration
 
-## ☕ Support 1nc0gn30 • NullAI (Zero Paywalls)
-
-All tools in the Zoth Arsenal are **100% free, open, and unlocked by default**. If you enjoy this tool and want to support continued sovereign development:
-
-- ☕ **Buy Us a Coffee (Stripe)**: [buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X)
-- ◎ **Solana Tip Address**: `GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK` (`solana:GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`)
-
----
-
-<div align="center">
-  <sub>Engineered by <b>1nc0gn30 • NullAI</b> (<a href="https://github.com/1nc0gn30">@1nc0gn30</a>) &bull; <a href="https://nullai.tech">NullAI Platform</a> &bull; <a href="https://zoth.nullai.tech">Zoth Studio v2</a></sub>
-</div>
-
----
-
-## 🏛️ ZothOS v3.4, Zoth Studio v2 & Obsidian Second Brain Ecosystem
-
-```mermaid
-flowchart LR
-    subgraph ZothOS["🐧 ZothOS v3.4 CLI & Braille TUI"]
-        CLI["producthunt-connector --help / --json"]
-        TUI["producthunt-connector-tui<br/>Unicode U+2800 2x4 Braille"]
-    end
-
-    subgraph Workstation["⚡ Sovereign Workstation"]
-        WEB["http://127.0.0.1:8139<br/>REST API & /health"]
-    end
-
-    subgraph Studio["🌌 Zoth Studio v2 & ZothOS-Lite"]
-        GODMODE["http://127.0.0.1:3000/tools/producthunt-connector<br/>God-Mode Workstation"]
-        LITE["http://127.0.0.1:8145<br/>ZothOS-Lite Web Desktop"]
-    end
-
-    subgraph SecondBrain["💎 Obsidian Second Brain & STDP"]
-        TRACKER["http://127.0.0.1:8151<br/>Zoth Obsidian Tracker"]
-        NEURO["http://127.0.0.1:8094<br/>Neuro-Memory STDP Cortex"]
-        NOTE["Studio/Tools/Studio producthunt-connector.md"]
-    end
-
-    CLI --> WEB
-    TUI --> WEB
-    WEB <--> GODMODE
-    WEB <--> LITE
-    WEB --> TRACKER
-    TRACKER <--> NOTE
-    NOTE <--> NEURO
-```
-
-### Cross-Surface Integration Matrix
-
-| Surface | Endpoint / Binary | Capabilities |
-| :--- | :--- | :--- |
-| **Standalone Workstation** | `http://127.0.0.1:8139` | 100% Free & Open-Access Web Deck, live `/health` & REST telemetry |
-| **Zoth Studio v2 Route** | `http://127.0.0.1:3000/tools/producthunt-connector` | Interactive God-Mode component inside Zoth Studio (`https://zoth.nullai.tech`) |
-| **ZothOS v3.4 CLI & TUI** | `producthunt-connector` / `producthunt-connector-tui` | Global binary in `/usr/local/bin/` with Unicode `U+2800` Braille TUI & `--json` output |
-| **ZothOS-Lite Web Desktop** | `http://127.0.0.1:8145` | Browser-native KDE-style window manager & terminal launcher |
-| **Zoth Obsidian Tracker** | `http://127.0.0.1:8151` | Interactive Obsidian Second Brain vault explorer (`~/Documents/Obsidian Vault/Studio/Tools/Studio producthunt-connector.md`) |
-| **Neuro-Memory STDP Cortex** | `http://127.0.0.1:8094` | 3-Factor STDP synaptic memory daemon & 21-tool MCP server |
+On ZothOS v3.4.0 workstations, `producthunt-connector` is installed in `/usr/local/bin/producthunt-connector`:
 
 ```bash
-# Inspect CLI & Unicode U+2800 Braille TUI on ZothOS v3.4
-producthunt-connector --help
-producthunt-connector-tui --status
-producthunt-connector-tui --json
-
-# Verify Second Brain Vault & 12-Step Verification Gallery on :8151
-zoth-obsidian-tracker --verify
+producthunt-connector --json
+producthunt-connector status --json
+producthunt-connector serve --port 8139
 ```
 
+---
+
+## HTTP API Reference
+
+When running on `http://127.0.0.1:8139`:
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health`, `/api/health` | Service health status, port, uptime, and token configuration boolean |
+| `GET` | `/api/stats` | Request counters, uptime, and configuration summary |
+| `GET` | `/api/status` | Live Product Hunt post metrics and website/GitHub URL drift report |
+| `GET` | `/api/badges` | Featured and Review HTML badge snippets |
+| `POST` | `/api/login` | Save a developer token (`{"developer_token": "..."}`) with local origin validation |
+
+---
+
+## Testing & Verification
+
+```bash
+# Run unit and loopback HTTP cockpit tests
+PYTHONPATH=src python3 -m pytest -q
+
+# Or run with stdlib unittest
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+
+# Scan repository with gitleaks
+gitleaks detect --source . --no-banner --redact
+```
+
+---
+
+## Support
+
+Product Hunt Connector is 100% free and open-source software. Optional community support is available via [Buy Us a Coffee (Stripe)](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X).
+
+## License
+
+MIT License — Copyright (c) 2026 [1nc0gn30](https://1nc0gn30.si) (`@1nc0gn30`) & [NullAI](https://nullai.tech). See [LICENSE](LICENSE) for full text.

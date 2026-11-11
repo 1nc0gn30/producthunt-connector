@@ -105,7 +105,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(HTTPStatus.OK, {
                 "status": "healthy",
                 "service": "producthunt-connector",
-                "port": getattr(self.server, "server_port", 8121),
+                "port": getattr(self.server, "server_port", 8139),
                 "version": __version__,
                 "uptime_seconds": round(time.time() - START_TIME, 1),
                 "configured": client.ProductHuntClient().is_configured(),
@@ -188,7 +188,7 @@ class Handler(BaseHTTPRequestHandler):
         self._json(HTTPStatus.NOT_FOUND, {"error": "not found"})
 
 
-def run_server(host: Optional[str] = None, port: int = 8121) -> None:
+def run_server(host: Optional[str] = None, port: int = 8139) -> None:
     bind = host or _default_bind_host()
     httpd = ThreadingHTTPServer((bind, port), Handler)
     print(f"zoth-ph cockpit http://{bind}:{port}")

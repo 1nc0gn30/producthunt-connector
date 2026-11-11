@@ -167,9 +167,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     bd = sub.add_parser("badges", help="Print official featured and review badge HTML")
     bd.add_argument("--json", action="store_true")
 
-    sv = sub.add_parser("serve", help="Local cockpit on 127.0.0.1:8121")
-    sv.add_argument("--port", type=int, default=8121)
-    sv.add_argument("--host", default=None)
+    sv = sub.add_parser("serve", help="Local cockpit on 127.0.0.1:8139")
+    sv.add_argument("--port", type=int, default=8139)
+    sv.add_argument("--host", default="127.0.0.1")
 
     args = parser.parse_args(argv)
     cmd = args.command or "status"
