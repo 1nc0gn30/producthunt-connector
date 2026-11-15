@@ -2,8 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zoth PH · Product Hunt connector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoth PH · Product Hunt Connector — Sovereign URL Drift &amp; Launch Telemetry</title>
+  <meta name="description" content="Zero-dependency Product Hunt GraphQL v2 connector &amp; localhost cockpit (:8139) that diffs live listing URLs, tracks votes/ranks/comments, and generates official badges. 100% free &amp; open-access." />
+  <meta property="og:title" content="Zoth PH · Product Hunt Connector — Sovereign Launch Telemetry" />
+  <meta property="og:description" content="Zero-dependency Product Hunt GraphQL v2 connector &amp; localhost cockpit (:8139) for URL drift detection, vote/comment tracking, and badge generation." />
+  <meta property="og:url" content="https://zoth.nullai.tech/tools/producthunt-connector" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://zoth.nullai.tech/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@1nc0gn30" />
+  <meta name="twitter:creator" content="@1nc0gn30" />
+  <meta name="twitter:title" content="Zoth PH · Product Hunt Connector" />
+  <meta name="twitter:description" content="Zero-dependency Product Hunt GraphQL v2 connector &amp; localhost cockpit (:8139)." />
+  <meta name="twitter:image" content="https://zoth.nullai.tech/og-image.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Product Hunt Connector (zoth-ph)",
+        "url": "https://zoth.nullai.tech/tools/producthunt-connector",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS, Windows, Web",
+        "description": "Local ZothOS cockpit and GraphQL v2 client that diffs Product Hunt listings against canonical website and GitHub release URLs, tracks votes and comments, and renders official badges.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        "creator": {
+          "@type": "Organization",
+          "name": "Neal Frazier Tech",
+          "url": "https://nullai.tech"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Neal Frazier",
+          "alternateName": "1nc0gn30",
+          "url": "https://nealfrazier.tech"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Neal Frazier Tech (@1nc0gn30) • NullAI Platform",
+          "url": "https://nullai.tech"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What does Product Hunt Connector (zoth-ph) do?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "It connects to the Product Hunt GraphQL v2 API using a local mode-0600 token to read live votes, comments, weekly rank, and product links, and detects drift against your canonical website and GitHub release URLs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Product Hunt Connector require external Python packages or cloud relays?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. It is built 100% on the Python 3 standard library and binds to 127.0.0.1:8139 with zero third-party telemetry."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Product Hunt Connector free and how can I support development?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, it is 100% free and open-access under the MIT License with zero paywalls. Optional support is welcomed via Buy Us a Coffee on Stripe (https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X) or Solana tips to GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <style>
     :root {
       --bg: #08080B;
@@ -31,8 +109,12 @@
     }
     .row { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); }
     .row:first-child { border-top: 0; padding-top: 0; }
-    .k { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
-    .v { font-family: var(--mono); font-size: 13px; text-align: right; word-break: break-all; }
+    .k { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); flex-shrink: 0; }
+    .v { font-family: var(--mono); font-size: 13px; text-align: right; overflow-wrap: anywhere; word-break: normal; }
+    @media (max-width: 640px) {
+      .row { flex-direction: column; gap: 4px; align-items: flex-start; }
+      .v { text-align: left; }
+    }
     .ok { color: var(--ok); }
     .bad { color: var(--bad); }
     label { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); margin-bottom: 8px; }
@@ -56,9 +138,10 @@
 </head>
 <body>
 
-<div id="zoth-coffee-support-bar" style="background: linear-gradient(90deg, rgba(16,185,129,0.12), rgba(212,175,55,0.14)); border-bottom: 1px solid rgba(212,175,55,0.35); padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; z-index: 9999;">
+<div id="zoth-coffee-support-bar" style="background: linear-gradient(90deg, rgba(16,185,129,0.12), rgba(212,175,55,0.14)); border-bottom: 1px solid rgba(212,175,55,0.35); padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; z-index: 9999; margin-bottom: 20px; border-radius: 10px;">
   <span style="color: #10B981; font-weight: 800;">✦ 100% FREE &amp; OPEN-SOURCE WORKSTATION</span>
   <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X" target="_blank" rel="noopener noreferrer" style="background: #D4AF37; color: #08080B; padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">☕ Buy Us a Coffee (Stripe)</a>
+  <a href="solana:GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK" title="Solana Tip Address: GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK" style="background: #047857; color: #FFFFFF; padding: 4px 12px; border-radius: 6px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">◎ Solana Tip: GG2e…dXoK</a>
 </div>
 
   <div class="eyebrow">Zoth OS · Product Hunt</div>
@@ -92,6 +175,11 @@
     <div class="eyebrow">Official badges</div>
     <p class="note" id="badges"></p>
   </div>
+
+  <footer style="margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--mute); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;">
+    <div>Engineered by Neal Frazier Tech (<a href="https://github.com/1nc0gn30" target="_blank" rel="noopener">@1nc0gn30</a>) • <a href="https://nullai.tech" target="_blank" rel="noopener">NullAI Platform</a></div>
+    <div><a href="https://github.com/1nc0gn30/producthunt-connector" target="_blank" rel="noopener">GitHub Repository</a> • Port 8139</div>
+  </footer>
 
   <script>
     const rows = document.getElementById("rows");
