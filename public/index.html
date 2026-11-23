@@ -187,13 +187,28 @@
     const loginMsg = document.getElementById("login-msg");
     const badges = document.getElementById("badges");
 
+    function esc(s) {
+      return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
     function row(k, v, cls) {
-      return `<div class="row"><span class="k">${k}</span><span class="v ${cls || ""}">${v}</span></div>`;
+      return `<div class="row"><span class="k">${esc(k)}</span><span class="v ${cls || ""}">${esc(v)}</span></div>`;
     }
 
     async function loadStatus() {
-      const res = await fetch("/api/status");
-      const data = await res.json();
+      let data = null;
+      try {
+        const res = await fetch("/api/status");
+        const ct = (res.headers.get("content-type") || "").toLowerCase();
+        if (res.ok && ct.includes("application/json")) {
+          data = await res.json();
+        }
+      } catch (_) {
+        data = null;
+      }
+      if (!data) {
+        data = { configured: false, desired: {}, badges: {}, offlinePreview: true };
+      }
       const d = data.desired || {};
       const b = data.badges || {};
       if (b.featured_html || b.review_html) {
@@ -201,7 +216,9 @@
       }
       if (!data.configured) {
         rows.innerHTML = [
-          row("auth state", "offline desired-state mode (run `zoth-ph login` or click Simulate URL Drift Audit)", "ok"),
+          row("auth state", data.offlinePreview
+            ? "offline static preview — start zoth-ph daemon (:8139) or click Simulate URL Drift Audit"
+            : "offline desired-state mode (run `zoth-ph login` or click Simulate URL Drift Audit)", "ok"),
           row("target slug", d.slug || "zothos", "ok"),
           row("product / post id", `${d.product_id || 1333989} / ${d.post_id || 1276873}`),
           row("desired website", d.desired_website || "https://zothos.nullai.tech", "ok"),
