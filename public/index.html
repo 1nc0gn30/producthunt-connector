@@ -256,16 +256,31 @@
 
     document.getElementById("save").onclick = async () => {
       const token = document.getElementById("token").value.trim();
+      if (!token) {
+        loginMsg.textContent = "Enter a Product Hunt Developer Token first, or click Simulate URL Drift Audit.";
+        return;
+      }
       loginMsg.textContent = "saving…";
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ developer_token: token })
-      });
-      const data = await res.json();
-      document.getElementById("token").value = "";
-      loginMsg.textContent = data.ok ? `saved as @${data.username}` : (data.error || "failed");
-      if (data.ok) loadStatus();
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ developer_token: token })
+        });
+        const ct = (res.headers.get("content-type") || "").toLowerCase();
+        if (!ct.includes("application/json")) {
+          loginMsg.textContent = "Offline static preview — start the local zoth-ph daemon (:8139) to save a Developer Token.";
+          return;
+        }
+        const data = await res.json();
+        document.getElementById("token").value = "";
+        loginMsg.textContent = data.ok ? `saved as @${data.username}` : (data.error || "failed");
+        if (data.ok) {
+          await loadStatus();
+        }
+      } catch (err) {
+        loginMsg.textContent = `Could not reach local zoth-ph daemon (:8139): ${err && err.message ? err.message : String(err)}`;
+      }
     };
     document.getElementById("refresh").onclick = loadStatus;
     document.getElementById("simulate-drift").onclick = () => {
